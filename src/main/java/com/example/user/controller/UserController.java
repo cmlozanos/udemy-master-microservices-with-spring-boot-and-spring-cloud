@@ -6,6 +6,9 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,21 +33,25 @@ public class UserController {
 	}
 
 	@GetMapping("/users/{id}")
-	public User findById(@PathVariable final int id) {
+	public EntityModel<User> findById(@PathVariable final int id) {
 		User user = service.findById(id);
 		if (user == null) {
 			throw new UserNotFoundException(id);
 		}
-		return user;
+		EntityModel<User> model = new EntityModel<>(user);
+		model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn((this.getClass())).findAll()).withRel("users"));
+		return model;
 	}
 
 	@DeleteMapping("/users/{id}")
-	public User deleteById(@PathVariable final int id) {
+	public EntityModel<User> deleteById(@PathVariable final int id) {
 		User user = service.deleteById(id);
 		if (user == null) {
 			throw new UserNotFoundException(id);
 		}
-		return user;
+		EntityModel<User> model = new EntityModel<>(user);
+		model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn((this.getClass())).findAll()).withRel("users"));
+		return model;
 	}
 
 	@PostMapping("/users")
