@@ -1,11 +1,11 @@
 package com.example.filtering;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonFilter;
 
 import lombok.Data;
 
 @Data
-@JsonIgnoreProperties(value= {"field1", "field2"})
+@JsonFilter("SomeBeanFilter")
 public class SomeBean {
 	private final String field1;
 	private final String field2;
