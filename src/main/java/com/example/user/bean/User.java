@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -33,6 +32,6 @@ public class User {
 	@Past
 	private LocalDate birthDate;
 	
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(mappedBy="user")
 	private List<Post> posts;
 }

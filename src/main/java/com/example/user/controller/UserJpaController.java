@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.post.bean.Post;
 import com.example.user.bean.User;
 import com.example.user.exception.UserNotFoundException;
 import com.example.user.repository.UserRepository;
@@ -57,6 +59,21 @@ public class UserJpaController {
 		
 		return ResponseEntity.created(location).build();
 	}
+
 	
+	@GetMapping("/jpa/users/{id}/posts")
+	public CollectionModel<Post> findAllPostsByUserId(@PathVariable final int id) {
+		Optional<User> optionalUser = repository.findById(id);
+		
+		if (!optionalUser.isPresent()) {
+			throw new UserNotFoundException(id);
+		}
+		
+		CollectionModel<Post> model = new CollectionModel<>(optionalUser.get().getPosts());
+		model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn((this.getClass())).findAll()).withRel("users"));
+		model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn((this.getClass())).findById(id)).withRel("users/"+id));
+		return model;
+	}
+
 	
 }
