@@ -17,7 +17,7 @@ public class UserDaoService {
 	private static int usersCount = 1;
 	
 	static {
-		users.put(usersCount, new User(usersCount,"carlos",LocalDate.of(1989, Month.DECEMBER, 25)));
+		users.put(usersCount, new User(usersCount,"carlos",LocalDate.of(1989, Month.DECEMBER, 25), null));
 		usersCount++;
 	}
 	
