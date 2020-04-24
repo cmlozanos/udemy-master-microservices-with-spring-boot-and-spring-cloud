@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.post.bean.Post;
+import com.example.post.repository.PostRepository;
 import com.example.user.bean.User;
 import com.example.user.exception.UserNotFoundException;
 import com.example.user.repository.UserRepository;
@@ -28,6 +29,9 @@ import com.example.user.repository.UserRepository;
 public class UserJpaController {
 	@Autowired
 	private UserRepository repository;
+	
+	@Autowired
+	private PostRepository postRepository;
 	
 	@GetMapping("/jpa/users")
 	public List<User> findAll() {
@@ -71,8 +75,23 @@ public class UserJpaController {
 		
 		CollectionModel<Post> model = new CollectionModel<>(optionalUser.get().getPosts());
 		model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn((this.getClass())).findAll()).withRel("users"));
-		model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn((this.getClass())).findById(id)).withRel("users/"+id));
+		model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn((this.getClass())).findById(id)).withRel("users_"+id));
 		return model;
+	}
+
+	@PostMapping("/jpa/users/{id}/posts")
+	public ResponseEntity<Object> savePostByUserId(@PathVariable final int id, @Valid @RequestBody final Post post) {
+		Optional<User> optionalUser = repository.findById(id);
+		
+		if (!optionalUser.isPresent()) {
+			throw new UserNotFoundException(id);
+		}
+		User user = optionalUser.get();
+		post.setUser(user);
+		Post postsaved = postRepository.save(post);
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(postsaved.getId()).toUri();
+		
+		return ResponseEntity.created(location).build();
 	}
 
 	
