@@ -21,13 +21,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.user.bean.User;
 import com.example.user.exception.UserNotFoundException;
 import com.example.user.repository.UserRepository;
-import com.example.user.service.UserDaoService;
 
 @RestController
 public class UserJpaController {
-	@Autowired
-	UserDaoService service;
-	
 	@Autowired
 	private UserRepository repository;
 	
@@ -50,19 +46,13 @@ public class UserJpaController {
 	}
 
 	@DeleteMapping("/jpa/users/{id}")
-	public EntityModel<User> deleteById(@PathVariable final int id) {
-		User user = service.deleteById(id);
-		if (user == null) {
-			throw new UserNotFoundException(id);
-		}
-		EntityModel<User> model = new EntityModel<>(user);
-		model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn((this.getClass())).findAll()).withRel("users"));
-		return model;
+	public void deleteById(@PathVariable final int id) {
+		repository.deleteById(id);
 	}
 
 	@PostMapping("/jpa/users")
 	public ResponseEntity<Object> save(@Valid @RequestBody final User user) {
-		User savedUser = service.save(user);
+		User savedUser = repository.save(user);
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedUser.getId()).toUri();
 		
 		return ResponseEntity.created(location).build();
